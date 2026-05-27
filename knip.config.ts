@@ -17,6 +17,12 @@ const config: KnipConfig = {
     '@logtape/logtape',
     '@swc/helpers', // Avoid error in CI: "`npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync."
   ],
+  // Transitional recruiter UI batches intentionally introduced these ahead of their consumers.
+  ignoreIssues: {
+    'src/features/dashboard/PageMessage.tsx': ['files'],
+    'src/features/recruitment/mock-data.ts': ['exports'],
+    'src/features/recruitment/types.ts': ['types'],
+  },
   // Include custom Playwright test file suffixes
   playwright: {
     entry: ['tests/**/*.@(integ|e2e).ts'],

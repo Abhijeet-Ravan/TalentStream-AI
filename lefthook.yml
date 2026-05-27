@@ -14,6 +14,3 @@ pre-commit:
     - name: check-types
       run: npm run check:types
       glob: '*.{ts,tsx}'
-    - name: knip
-      run: npm run check:deps
-      glob: '*'

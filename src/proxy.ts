@@ -9,6 +9,8 @@ const handleI18nRouting = createMiddleware(routing);
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/:locale/dashboard(.*)',
+  '/recruiter(.*)',
+  '/:locale/recruiter(.*)',
   '/onboarding(.*)',
   '/:locale/onboarding(.*)',
 ]);
@@ -32,7 +34,9 @@ export default async function proxy(
       // Check if the current route is protected and requires authentication
       // If user is not authenticated, redirect them to the sign-in page with proper locale
       if (isProtectedRoute(req)) {
-        const locale = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
+        const locale = req.nextUrl.pathname.match(
+          /^\/[a-z]{2}(?:-[A-Z]{2})?(?=\/(?:dashboard|recruiter|onboarding)(?:\/|$))/,
+        )?.at(0) ?? '';
 
         const signInUrl = new URL(`${locale}/sign-in`, req.url);
 
@@ -43,12 +47,15 @@ export default async function proxy(
 
       const authObj = await auth();
 
-      // Redirect authenticated users without an organization to the organization selection page
-      // This ensures users are properly associated with an organization before accessing the dashboard
+      // Redirect authenticated users without an organization to the organization selection page.
+      // This ensures users are associated with an organization before accessing app workspaces.
       if (
         authObj.userId
         && !authObj.orgId
-        && req.nextUrl.pathname.includes('/dashboard')
+        && (
+          req.nextUrl.pathname.includes('/dashboard')
+          || req.nextUrl.pathname.includes('/recruiter')
+        )
         && !req.nextUrl.pathname.endsWith('/organization-selection')
       ) {
         const orgSelection = new URL(

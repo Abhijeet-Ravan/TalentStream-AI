@@ -1,7 +1,7 @@
 {
   "Index": {
-    "meta_title": "SaaS Template - The perfect SaaS template to build and scale your business with ease.",
-    "meta_description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS."
+    "meta_title": "TalentStream AI - AI recruitment operations for modern hiring teams.",
+    "meta_description": "TalentStream AI helps recruiters manage jobs, candidates, pipelines, and AI-assisted hiring workflows."
   },
   "Navbar": {
     "sign_in": "Sign in",
@@ -16,28 +16,28 @@
     "button_label": "Change language"
   },
   "Hero": {
-    "follow_twitter": "Follow @Ixartz on Twitter",
-    "title": "The perfect <important>SaaS template</important> to build and scale your business with ease.",
-    "description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS.",
-    "primary_button": "Get Next.js SaaS Starter Kit",
-    "secondary_button": "Star on GitHub"
+    "follow_twitter": "TalentStream AI for recruiters",
+    "title": "Recruiting operations powered by <important>AI match intelligence</important>.",
+    "description": "TalentStream AI gives recruiters one workspace to manage jobs, candidates, screenings, interviews, and hiring pipelines.",
+    "primary_button": "Start recruiting",
+    "secondary_button": "View platform"
   },
   "Features": {
     "section_subtitle": "Features",
-    "section_title": "Unlock the Full Potential of the SaaS Template",
-    "section_description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS.",
-    "feature1_title": "Node.js",
-    "feature2_title": "React",
-    "feature3_title": "Tailwind CSS",
-    "feature4_title": "TypeScript",
-    "feature5_title": "Shadcn UI",
-    "feature6_title": "ESLint",
-    "feature_description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS."
+    "section_title": "Run recruiter-first hiring workflows in TalentStream AI",
+    "section_description": "Coordinate open roles, candidate reviews, match scores, and pipeline stages from one operations workspace.",
+    "feature1_title": "Jobs",
+    "feature2_title": "Candidates",
+    "feature3_title": "Pipeline",
+    "feature4_title": "Screenings",
+    "feature5_title": "Interviews",
+    "feature6_title": "Analytics",
+    "feature_description": "Keep recruiting teams focused on the next best action across every role and candidate."
   },
   "Pricing": {
     "section_subtitle": "Pricing",
-    "section_title": "Unlock the Full Potential of the SaaS Template",
-    "section_description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS.",
+    "section_title": "Plans for recruiting teams",
+    "section_description": "Choose the TalentStream AI workspace that fits your hiring volume.",
     "button_text": "Get started"
   },
   "PricingPlans": {
@@ -66,8 +66,7 @@
     "sentry_logo": "Sentry logo",
     "crowdin_logo": "Crowdin logo",
     "arcjet_logo": "Arcjet logo",
-    "coderabbit_logo": "CodeRabbit logo",
-    "nextjs_boilerplate_logo": "Next.js SaaS Boilerplate logo"
+    "coderabbit_logo": "CodeRabbit logo"
   },
   "FAQ": {
     "question": "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
@@ -75,8 +74,8 @@
   },
   "CTA": {
     "title": "You are ready?",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "button_text": "Get Next.js SaaS Starter Kit"
+    "description": "Bring jobs, candidates, and recruiting pipeline work into one AI-assisted workspace.",
+    "button_text": "Start recruiting"
   },
   "Footer": {
     "product": "Product",
@@ -86,7 +85,7 @@
     "company": "Company",
     "terms_of_service": "Terms Of Service",
     "privacy_policy": "Privacy Policy",
-    "footer_text": "© {year} {name}. Made with <author></author>."
+    "footer_text": "© {year} {name}. All rights reserved."
   },
   "SignIn": {
     "meta_title": "Sign in",
@@ -97,19 +96,11 @@
     "meta_description": "Effortlessly create an account through our intuitive sign-up process."
   },
   "DashboardLayout": {
-    "meta_title": "SaaS Template Dashboard",
-    "meta_description": "A free and open-source landing page template for your SaaS business, built with Next.js, TypeScript, Shadcn UI, and Tailwind CSS.",
+    "meta_title": "TalentStream AI Dashboard",
+    "meta_description": "Recruiter operations workspace for TalentStream AI.",
     "home": "Home",
     "members": "Members",
     "settings": "Settings"
-  },
-  "DashboardIndexPage": {
-    "title_bar": "Dashboard",
-    "title_bar_description": "Welcome to your dashboard",
-    "message_state_title": "Let's get started",
-    "message_state_description": "Customize this page by editing the file at <code>dashboard/page.tsx</code>.",
-    "message_state_alternative": "Need advanced features? Next.js 16 & React 19, Multi-tenancy & Teams, Roles & Permissions, Shadcn UI,\nEnd-to-End Typesafety with oRPC, Stripe Payment, Light / Dark mode. Try <url></url>.",
-    "max_message": "Or, need a Self-hosted auth stack (Better Auth)? Try <url></url>."
   },
   "UserProfilePage": {
     "title_bar": "User Profile",

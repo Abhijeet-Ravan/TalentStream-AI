@@ -18,7 +18,7 @@ export const buttonVariants = cva(
         default:
           `
             bg-primary text-primary-foreground
-            hover:bg-primary/90
+            hover:bg-primary-hover
           `,
         destructive:
           `
@@ -30,7 +30,7 @@ export const buttonVariants = cva(
           `,
         outline:
           `
-            border bg-background shadow-xs
+            border bg-card
             hover:bg-accent hover:text-accent-foreground
             dark:border-input dark:bg-input/30
             dark:hover:bg-input/50
@@ -44,7 +44,7 @@ export const buttonVariants = cva(
           'hover:bg-accent hover:text-accent-foreground',
         link: `
           text-primary underline-offset-4
-          hover:underline
+          hover:text-primary-hover hover:underline
         `,
       },
       size: {

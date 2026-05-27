@@ -9,10 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -36,33 +37,80 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-surface: var(--surface);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-outline-variant: var(--outline-variant);
+  --color-primary-hover: var(--primary-hover);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  color-scheme: light;
+  --font-inter: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius-sm: 0.125rem;
+  --radius: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+  --space-base: 4px;
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 40px;
+  --space-xl: 64px;
+  --space-gutter: 24px;
+  --page-margin-desktop: 32px;
+  --page-margin-mobile: 16px;
+  --text-display-lg: 700 48px / 56px var(--font-inter);
+  --text-headline-lg: 600 32px / 40px var(--font-inter);
+  --text-headline-md: 600 24px / 32px var(--font-inter);
+  --text-body-lg: 400 18px / 28px var(--font-inter);
+  --text-body-md: 400 16px / 24px var(--font-inter);
+  --text-label-md: 500 14px / 20px var(--font-inter);
+  --text-label-sm: 600 12px / 16px var(--font-inter);
+  --background: #faf8ff;
+  --foreground: #1a1b22;
+  --surface: #faf8ff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f4f3fc;
+  --surface-container: #eeedf7;
+  --outline-variant: #e2e1eb;
+  --card: #ffffff;
+  --card-foreground: #1a1b22;
+  --popover: #ffffff;
+  --popover-foreground: #1a1b22;
+  --primary: #ff6b00;
+  --primary-hover: #a04100;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f3fc;
+  --secondary-foreground: #1a1b22;
+  --muted: #f4f3fc;
+  --muted-foreground: #5a4136;
+  --accent: #fff1e8;
+  --accent-foreground: #a04100;
+  --destructive: #ba1a1a;
+  --border: #e2e1eb;
+  --input: #e2e1eb;
+  --ring: #ff6b00;
+  --success: #0f7a3b;
+  --success-foreground: #ffffff;
+  --warning: #b45f00;
+  --warning-foreground: #ffffff;
+  --info: #0f5f9f;
+  --info-foreground: #ffffff;
+  --chart-1: #ff6b00;
+  --chart-2: #0f5f9f;
+  --chart-3: #0f7a3b;
+  --chart-4: #b45f00;
+  --chart-5: #5a4136;
 }
 
 .dark {
@@ -96,6 +144,17 @@
     @apply border-border outline-ring/50;
   }
   body {
+    font-family: var(--font-inter);
     @apply bg-background text-foreground antialiased;
+  }
+  input,
+  textarea,
+  select {
+    @apply rounded-md border border-input bg-card text-foreground;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply border-ring ring-[3px] ring-ring/20 outline-none;
   }
 }

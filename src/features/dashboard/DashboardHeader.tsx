@@ -22,7 +22,7 @@ export const DashboardHeader = (props: {
   return (
     <>
       <div className="flex items-center">
-        <Link href="/dashboard" className="max-sm:hidden">
+        <Link href="/recruiter/dashboard" className="max-sm:hidden">
           <Logo />
         </Link>
 
@@ -68,7 +68,7 @@ export const DashboardHeader = (props: {
             <UserButton
               userProfileMode="navigation"
               userProfileUrl={getI18nPath('/dashboard/user-profile', locale)}
-              afterSwitchSessionUrl="/dashboard"
+              afterSwitchSessionUrl="/recruiter/dashboard"
               appearance={{
                 elements: {
                   rootBox: 'px-2 py-1.5',

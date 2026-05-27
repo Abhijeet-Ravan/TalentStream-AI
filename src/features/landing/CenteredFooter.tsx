@@ -43,15 +43,7 @@ export const CenteredFooter = (props: {
             year: new Date().getFullYear(),
             name: AppConfig.name,
             author: () => (
-              <a
-                className="
-                  text-blue-500
-                  hover:text-blue-600
-                "
-                href="https://nextjs-boilerplate.com"
-              >
-                Next.js Boilerplate
-              </a>
+              <span>{AppConfig.name}</span>
             ),
           })}
           {/*

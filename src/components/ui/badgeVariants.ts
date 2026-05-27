@@ -3,7 +3,7 @@ import { cva } from 'class-variance-authority';
 export const badgeVariants = cva(
   `
     inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden
-    rounded-md border px-2 py-0.5 text-xs font-medium whitespace-nowrap
+    rounded-sm border px-2 py-0.5 text-xs/4 font-semibold whitespace-nowrap
     transition-[color,box-shadow]
     focus-visible:border-ring focus-visible:ring-[3px]
     focus-visible:ring-ring/50
@@ -17,7 +17,7 @@ export const badgeVariants = cva(
         default:
           `
             border-transparent bg-primary text-primary-foreground
-            [a&]:hover:bg-primary/90
+            [a&]:hover:bg-primary-hover
           `,
         secondary:
           `
@@ -34,7 +34,7 @@ export const badgeVariants = cva(
           `,
         outline:
           `
-            text-foreground
+            border-border bg-card text-foreground
             [a&]:hover:bg-accent [a&]:hover:text-accent-foreground
           `,
       },

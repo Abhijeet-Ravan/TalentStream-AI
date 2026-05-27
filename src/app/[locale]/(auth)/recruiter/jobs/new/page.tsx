@@ -1,10 +1,15 @@
-import { RecruiterPlaceholderPage } from '@/features/recruitment/RecruiterPlaceholderPage';
+import { TitleBar } from '@/features/dashboard/TitleBar';
+import { JobForm } from '@/features/recruitment/jobs/components/JobForm';
 
 export default function NewRecruiterJobPage() {
   return (
-    <RecruiterPlaceholderPage
-      title="Create Job"
-      description="Draft a new role before matching candidates to it."
-    />
+    <>
+      <TitleBar
+        title="Create Job"
+        description="Draft recruiter-authored role setup before candidate matching."
+      />
+
+      <JobForm />
+    </>
   );
 }

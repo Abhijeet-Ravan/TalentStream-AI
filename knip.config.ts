@@ -5,16 +5,12 @@ const config: KnipConfig = {
   ignore: [
     'checkly.config.ts',
     'src/components/ui/*',
-    'src/libs/DB.ts',
     'src/libs/I18n.ts',
-    'src/libs/Logger.ts',
     'src/types/Auth.ts',
-    'src/utils/DBConnection.ts',
   ],
   // Dependencies to ignore during analysis
   ignoreDependencies: [
     '@clerk/shared',
-    '@logtape/logtape',
     '@swc/helpers', // Avoid error in CI: "`npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync."
   ],
   // Transitional recruiter UI batches intentionally introduced these ahead of their consumers.
@@ -22,6 +18,9 @@ const config: KnipConfig = {
     'src/features/dashboard/PageMessage.tsx': ['files'],
     'src/features/recruitment/mock-data.ts': ['exports'],
     'src/features/recruitment/types.ts': ['types'],
+    'src/features/recruitment/compliance/actions.ts': ['files'],
+    'src/features/recruitment/hiring-manager/actions.ts': ['files'],
+    'src/features/recruitment/notifications/actions.ts': ['files'],
   },
   // Include custom Playwright test file suffixes
   playwright: {

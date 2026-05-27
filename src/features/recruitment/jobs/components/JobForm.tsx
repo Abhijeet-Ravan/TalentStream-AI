@@ -1,9 +1,11 @@
 'use client';
 
 import type { JobFormPayload } from '../validations';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { departments } from '../../mock-data';
+import { recruitmentDepartments } from '../../domain-options';
+import { createJob } from '../actions';
 import { employmentTypes, jobFormSchema } from '../validations';
 
 type FieldErrors = Partial<Record<keyof JobFormPayload, string>>;
@@ -81,6 +83,8 @@ const textareaClassName = 'min-h-28 w-full px-3 py-2 text-sm';
 export const JobForm = () => {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -94,8 +98,20 @@ export const JobForm = () => {
       return;
     }
 
-    setErrors({});
-    setSuccessMessage('Validated job draft. This will be persisted in the DB batch.');
+    startTransition(async () => {
+      try {
+        setErrors({});
+        const job = await createJob({
+          ...result.data,
+          openPositions: 1,
+          status: 'open',
+        });
+        setSuccessMessage('Job saved.');
+        router.push(`/recruiter/jobs/${job.id}`);
+      } catch (error) {
+        setSuccessMessage(error instanceof Error ? error.message : 'Unable to save job.');
+      }
+    });
   };
 
   return (
@@ -131,7 +147,7 @@ export const JobForm = () => {
             <span className="text-sm font-medium">Department</span>
             <select className={inputClassName} name="department" defaultValue="">
               <option disabled value="">Select department</option>
-              {departments.map(department => (
+              {recruitmentDepartments.map(department => (
                 <option key={department} value={department}>
                   {department}
                 </option>
@@ -282,8 +298,8 @@ export const JobForm = () => {
       </section>
 
       <div className="flex justify-end gap-3">
-        <Button type="submit">
-          Save Job Draft
+        <Button disabled={isPending} type="submit">
+          {isPending ? 'Saving...' : 'Save Job'}
         </Button>
       </div>
     </form>

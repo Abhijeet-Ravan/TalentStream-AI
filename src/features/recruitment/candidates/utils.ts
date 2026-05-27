@@ -7,6 +7,17 @@ import type {
   ScreeningStatus,
 } from '../types';
 
+export const candidateSources = [
+  'employee_referral',
+  'linkedin',
+  'naukri',
+  'career_site',
+  'agency',
+  'walk_in',
+  'campus',
+  'internal',
+] satisfies CandidateSource[];
+
 export const formatSource = (source: CandidateSource) => {
   const labelMap: Record<CandidateSource, string> = {
     agency: 'Agency',

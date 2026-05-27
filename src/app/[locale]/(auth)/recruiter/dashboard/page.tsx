@@ -1,24 +1,27 @@
 import { RecruiterDashboardContent } from '@/features/recruitment/dashboard/components/RecruiterDashboardContent';
 import {
-  applications,
-  candidates,
-  interviews,
-  jobs,
-  recruiterAlerts,
-  recruiterMetrics,
-  screeningSessions,
-} from '@/features/recruitment/mock-data';
+  getDbRecruiterAlerts,
+  getDbRecruiterMetrics,
+  getRecruitmentDbData,
+  mapDbApplicationsToUiApplications,
+  mapDbCandidatesToUiCandidates,
+  mapDbInterviewsToUiInterviews,
+  mapDbJobsToUiJobs,
+  mapDbScreeningsToUiScreenings,
+} from '@/features/recruitment/db-view-models';
 
-export default function RecruiterDashboardPage() {
+export default async function RecruiterDashboardPage() {
+  const data = await getRecruitmentDbData();
+
   return (
     <RecruiterDashboardContent
-      applications={applications}
-      candidates={candidates}
-      interviews={interviews}
-      jobs={jobs}
-      recruiterAlerts={recruiterAlerts}
-      recruiterMetrics={recruiterMetrics}
-      screeningSessions={screeningSessions}
+      applications={mapDbApplicationsToUiApplications(data)}
+      candidates={mapDbCandidatesToUiCandidates(data)}
+      interviews={mapDbInterviewsToUiInterviews(data)}
+      jobs={mapDbJobsToUiJobs(data)}
+      recruiterAlerts={getDbRecruiterAlerts()}
+      recruiterMetrics={getDbRecruiterMetrics(data)}
+      screeningSessions={mapDbScreeningsToUiScreenings(data)}
     />
   );
 }

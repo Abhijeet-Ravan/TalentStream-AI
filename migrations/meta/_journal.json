@@ -8,6 +8,20 @@
       "when": 1779313620411,
       "tag": "0000_init-db",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779876989505,
+      "tag": "0001_charming_supernaut",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779877196685,
+      "tag": "0002_nice_yellow_claw",
+      "breakpoints": true
     }
   ]
 }

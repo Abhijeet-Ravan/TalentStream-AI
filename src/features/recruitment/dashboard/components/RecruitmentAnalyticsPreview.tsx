@@ -1,6 +1,6 @@
 import type { Application, PipelineStage, ScreeningSession } from '../../types';
 
-const stageLabels: Record<PipelineStage, string> = {
+const stageLabels: Partial<Record<PipelineStage, string>> = {
   ai_matched: 'AI matched',
   interview_scheduled: 'Interview scheduled',
   offer_final: 'Offer final',
@@ -74,7 +74,9 @@ export const RecruitmentAnalyticsPreview = (props: {
                         font-semibold
                       "
                       >
-                        <span className="text-muted-foreground">{stageLabels[stage as PipelineStage]}</span>
+                        <span className="text-muted-foreground">
+                          {stageLabels[stage as PipelineStage] ?? stage.replaceAll('_', ' ')}
+                        </span>
                         <span>{count}</span>
                       </div>
                       <div className="h-2 rounded-full bg-secondary">

@@ -1,6 +1,6 @@
 import type { Department, EmploymentType } from '../types';
 import { z } from 'zod';
-import { departments } from '../mock-data';
+import { recruitmentDepartments } from '../domain-options';
 
 export const employmentTypes = [
   'full_time',
@@ -8,7 +8,7 @@ export const employmentTypes = [
   'consultant',
 ] satisfies EmploymentType[];
 
-const departmentValues = departments as [Department, ...Department[]];
+const departmentValues = recruitmentDepartments as [Department, ...Department[]];
 const employmentTypeValues = employmentTypes as [EmploymentType, ...EmploymentType[]];
 
 const optionalText = z.string().trim().optional();

@@ -98,3 +98,23 @@ Do not delete boilerplate files in this phase. Avoid changing these until the re
 - Billing/subscription placeholders: `src/features/billing/*`, `src/types/Subscription.ts`, and `src/utils/PricingPlans.ts`.
 - Observability/test/config scaffolding: `src/instrumentation.ts`, `src/instrumentation-client.ts`, `checkly.config.ts`, `playwright.config.ts`, `vitest.config.ts`, `eslint.config.mjs`, `knip.config.ts`, `lefthook.yml`, and CI-related config files.
 - Public boilerplate assets under `public/assets/images/` unless explicitly replacing branding in a later product-branding milestone.
+## Current Implementation Status
+
+The recruiter console is now DB-backed for the demo workflow. Mock data remains in `src/features/recruitment/mock-data.ts` as the source for the organization-scoped demo seed utility.
+
+Implemented:
+- Recruitment schema and Drizzle migrations.
+- Organization-scoped server queries/actions.
+- Demo seed action and settings card.
+- DB-backed jobs, candidates, pipeline, screenings, interviews, handoffs, analytics, and dashboard metrics.
+- Deterministic mock match scoring.
+- Mock screening, hiring-manager handoff, manager decision, interview scheduling, feedback, notification records, consent records, and audit logs.
+
+Known mock limitations:
+- AI JD generation, PDF generation, real sourcing, AI voice calls, email/WhatsApp/SMS delivery, Outlook/Teams integration, resume parsing, and analytics warehouse integrations are not implemented.
+- Compliance support is currently record-level evidence, not end-to-end legal workflow automation.
+
+Next phase:
+- Replace mock workflow stubs with real integration adapters behind explicit provider boundaries.
+- Add richer authorization and audit review tools.
+- Harden workflows with tests around cross-organization access and duplicate application prevention.

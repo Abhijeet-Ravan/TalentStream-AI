@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
+import { getRecruitmentDbData, mapDbJobsToUiJobs } from '@/features/recruitment/db-view-models';
+import { recruitmentDepartments } from '@/features/recruitment/domain-options';
 import { JobsTable } from '@/features/recruitment/jobs/components/JobsTable';
 import { JobSummaryCards } from '@/features/recruitment/jobs/components/JobSummaryCards';
-import { departments, jobs } from '@/features/recruitment/mock-data';
 
-export default function RecruiterJobsPage() {
+export default async function RecruiterJobsPage() {
+  const data = await getRecruitmentDbData();
+  const jobs = mapDbJobsToUiJobs(data);
+
   return (
     <>
       <div className="
@@ -25,8 +29,20 @@ export default function RecruiterJobsPage() {
       </div>
 
       <div className="space-y-6">
-        <JobSummaryCards jobs={jobs} />
-        <JobsTable departments={departments} jobs={jobs} />
+        {jobs.length === 0
+          ? (
+              <section className="rounded-lg border bg-card p-6">
+                <div className="text-sm text-muted-foreground">
+                  No jobs yet. Seed demo data or post your first job.
+                </div>
+              </section>
+            )
+          : (
+              <>
+                <JobSummaryCards jobs={jobs} />
+                <JobsTable departments={recruitmentDepartments} jobs={jobs} />
+              </>
+            )}
       </div>
     </>
   );

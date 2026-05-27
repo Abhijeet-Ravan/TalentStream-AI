@@ -6,6 +6,7 @@ import {
   Briefcase,
   Calendar,
   Columns3,
+  Handshake,
   LayoutDashboard,
   Plus,
   Settings,
@@ -45,6 +46,11 @@ const navItems = [
     href: '/recruiter/interviews',
     label: 'Interviews',
     icon: Calendar,
+  },
+  {
+    href: '/recruiter/handoffs',
+    label: 'Handoffs',
+    icon: Handshake,
   },
   {
     href: '/recruiter/analytics',

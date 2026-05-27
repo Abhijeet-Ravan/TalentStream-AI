@@ -48,6 +48,17 @@ export type InterviewStatus
 
 export type PipelineStage
   = | 'sourced'
+    | 'ai_recommended'
+    | 'approved_for_screening'
+    | 'screening_scheduled'
+    | 'screened_awaiting_review'
+    | 'shared_with_hiring_manager'
+    | 'interview_scheduled_round_1'
+    | 'interview_scheduled_round_2'
+    | 'interview_scheduled_round_3'
+    | 'awaiting_feedback'
+    | 'offer_stage'
+    | 'on_hold'
     | 'ai_matched'
     | 'screening_pending'
     | 'screened'

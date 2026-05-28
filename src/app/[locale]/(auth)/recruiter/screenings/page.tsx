@@ -26,7 +26,9 @@ export default async function RecruiterScreeningsPage() {
     jobs,
     matchScores,
   );
-  const completedRows = rows.filter(row => row.session.status === 'completed');
+  const completedRows = rows.filter(
+    row => row.session?.status === 'completed',
+  );
 
   return (
     <>
@@ -58,8 +60,11 @@ export default async function RecruiterScreeningsPage() {
                   lg:grid-cols-2
                 "
                 >
+
                   {completedRows.map(row => (
-                    <ScreeningResultCard key={row.session.id} row={row} />
+                    row.session
+                      ? <ScreeningResultCard key={row.session?.id ?? row.application.id} row={row} />
+                      : null
                   ))}
                 </div>
               )}

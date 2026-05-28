@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { DemoBadge } from '@/components/DemoBadge';
 import { routing } from '@/libs/I18nRouting';
 import '@/styles/global.css';
+import '@livekit/components-styles';
 
 export const metadata: Metadata = {
   icons: [

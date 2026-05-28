@@ -1,3 +1,5 @@
+'use client';
+
 import type { ScreeningRow } from '../utils';
 import { getMatchToneClassName } from '../../candidates/utils';
 import { getScreeningRecommendation } from '../utils';
@@ -6,6 +8,13 @@ import { ScreeningStatusBadge } from './ScreeningStatusBadge';
 export const ScreeningResultCard = (props: {
   row: ScreeningRow;
 }) => {
+  // 1. Early guard: If there's no screening session yet, don't render the result card
+  if (!props.row.session) {
+    return null;
+  }
+
+  // 2. Safe destructuring now that the compiler knows session exists
+  const { session } = props.row;
   const score = props.row.matchScore?.overallScore ?? props.row.candidate?.matchScore ?? 0;
 
   return (
@@ -19,11 +28,13 @@ export const ScreeningResultCard = (props: {
             {props.row.job?.title ?? 'Unknown job'}
           </p>
         </div>
-        <ScreeningStatusBadge status={props.row.session.status} />
+        {/* 3. Safely reading status from the guarded session variable */}
+        <ScreeningStatusBadge status={session.status} />
       </div>
 
       <p className="mt-4 text-sm/6 text-muted-foreground">
-        {props.row.session.summary ?? 'Screening summary is not available yet.'}
+        {/* 4. Safely reading summary */}
+        {session.summary ?? 'Screening summary is not available yet.'}
       </p>
 
       <div className="

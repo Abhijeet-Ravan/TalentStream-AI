@@ -16,11 +16,11 @@ export const screeningStatusLabels: Record<ScreeningStatus, string> = {
 };
 
 export type ScreeningRow = {
-  application?: Application;
+  application: Application;
   candidate?: Candidate;
   job?: Job;
   matchScore?: MatchScore;
-  session: ScreeningSession;
+  session?: ScreeningSession;
 };
 
 export const buildScreeningRows = (
@@ -29,23 +29,52 @@ export const buildScreeningRows = (
   candidates: Candidate[],
   jobs: Job[],
   matchScores: MatchScore[],
-) => {
-  const applicationsByCandidateId = new Map(
-    applications.map(application => [application.candidateId, application]),
+): ScreeningRow[] => {
+  const candidatesById = new Map(
+    candidates.map(candidate => [candidate.id, candidate]),
   );
-  const candidatesById = new Map(candidates.map(candidate => [candidate.id, candidate]));
-  const jobsById = new Map(jobs.map(job => [job.id, job]));
+
+  const jobsById = new Map(
+    jobs.map(job => [job.id, job]),
+  );
+
   const matchScoresByCandidateId = new Map(
     matchScores.map(matchScore => [matchScore.candidateId, matchScore]),
   );
 
-  return sessions.map(session => ({
-    application: applicationsByCandidateId.get(session.candidateId),
-    candidate: candidatesById.get(session.candidateId),
-    job: jobsById.get(session.jobId),
-    matchScore: matchScoresByCandidateId.get(session.candidateId),
-    session,
-  }));
+  const sessionsById = new Map(
+    sessions.map(session => [session.id, session]),
+  );
+
+  const sessionsByCandidateAndJobId = new Map(
+    sessions.map(session => [
+      `${session.candidateId}:${session.jobId}`,
+      session,
+    ]),
+  );
+
+  return applications
+    .filter(application =>
+      application.status !== 'rejected'
+      && application.status !== 'withdrawn',
+    )
+    .map((application) => {
+      const sessionFromApplication = application.screeningSessionId
+        ? sessionsById.get(application.screeningSessionId)
+        : undefined;
+
+      const sessionFromCandidateAndJob = sessionsByCandidateAndJobId.get(
+        `${application.candidateId}:${application.jobId}`,
+      );
+
+      return {
+        application,
+        candidate: candidatesById.get(application.candidateId),
+        job: jobsById.get(application.jobId),
+        matchScore: matchScoresByCandidateId.get(application.candidateId),
+        session: sessionFromApplication ?? sessionFromCandidateAndJob,
+      };
+    });
 };
 
 export const summarizeScreenings = (sessions: ScreeningSession[]) => [

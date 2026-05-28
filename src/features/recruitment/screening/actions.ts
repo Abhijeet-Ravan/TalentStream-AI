@@ -8,13 +8,40 @@ import {
   applicationsSchema,
   candidatesSchema,
   consentRecordsSchema,
+  jobsSchema,
   screeningSessionsSchema,
 } from '@/models/Schema';
 import { createAuditLog } from '../audit/audit-log';
 import { createNotificationRecordForOrg } from '../notifications/record-notification';
 import { getRecruitmentContext } from '../server-context';
+import { scoreMockTranscriptWithLlm } from './mock-llm-scorer';
+import { getMockTranscriptFromExternalApi } from './mock-transcript';
 
 const applicationIdSchema = z.string().uuid();
+const normalizeSkillList = (value: unknown) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((skill) => {
+      if (typeof skill === 'string') {
+        return skill;
+      }
+
+      if (
+        typeof skill === 'object'
+        && skill !== null
+        && 'name' in skill
+      ) {
+        return String((skill as { name: unknown }).name);
+      }
+
+      return String(skill);
+    })
+    .map(skill => skill.trim())
+    .filter(Boolean);
+};
 
 const getScopedApplication = async (applicationId: string, organizationId: string) => {
   const [application] = await db
@@ -84,6 +111,26 @@ export const completeMockScreening = async (applicationId: unknown) => {
   const parsedApplicationId = applicationIdSchema.parse(applicationId);
   const application = await getScopedApplication(parsedApplicationId, organizationId);
 
+  const [candidate] = await db
+    .select()
+    .from(candidatesSchema)
+    .where(and(
+      eq(candidatesSchema.id, application.candidateId),
+      eq(candidatesSchema.organizationId, organizationId),
+    ));
+
+  const [job] = await db
+    .select()
+    .from(jobsSchema)
+    .where(and(
+      eq(jobsSchema.id, application.jobId),
+      eq(jobsSchema.organizationId, organizationId),
+    ));
+
+  if (!candidate || !job) {
+    throw new Error('Candidate or job not found for screening.');
+  }
+
   const [existingSession] = await db
     .select()
     .from(screeningSessionsSchema)
@@ -91,29 +138,53 @@ export const completeMockScreening = async (applicationId: unknown) => {
       eq(screeningSessionsSchema.applicationId, parsedApplicationId),
       eq(screeningSessionsSchema.organizationId, organizationId),
     ));
+
+  const candidateSkills = normalizeSkillList(candidate.skills);
+  const requiredSkills = normalizeSkillList(job.requiredSkills);
+
+  const transcriptResult = await getMockTranscriptFromExternalApi({
+    candidateName: candidate.name,
+    candidateSkills,
+    currentCompany: candidate.currentCompany,
+    currentRole: candidate.currentRole,
+    experienceYears: candidate.experienceYears,
+    jobTitle: job.title,
+    noticePeriod: candidate.noticePeriod,
+    requiredSkills,
+  });
+
+  const llmScore = await scoreMockTranscriptWithLlm({
+    candidateName: candidate.name,
+    candidateSkills,
+    experienceYears: candidate.experienceYears,
+    jobTitle: job.title,
+    noticePeriod: candidate.noticePeriod,
+    requiredSkills,
+    transcript: transcriptResult.transcript,
+  });
+
+  const now = new Date();
   const values = {
-    candidateQuestions: [
-      'What production metrics have you owned?',
-      'What is your current notice period?',
-    ],
-    consentCapturedAt: new Date(),
-    qualificationTag: 'qualified',
-    recommendation: 'Proceed after recruiter validation',
-    resumeCrossCheck: {
-      result: 'mock_match',
-      summary: 'Resume claims are consistent with screening responses.',
-    },
-    score: 82,
-    sentiment: 'positive',
+    attemptCount: (existingSession?.attemptCount ?? 0) + 1,
+    callEndedAt: now,
+    callStartedAt: new Date(now.getTime() - 120_000),
+    candidateQuestions: llmScore.candidateQuestions,
+    consentCapturedAt: now,
+    durationSeconds: 120,
+    externalRoomId: transcriptResult.externalSessionId,
+    provider: transcriptResult.provider,
+    qualificationTag: llmScore.qualificationTag,
+    recommendation: llmScore.recommendation,
+    recordingUrl: transcriptResult.recordingUrl,
+    resumeCrossCheck: llmScore.resumeCrossCheck,
+    score: llmScore.score,
+    sentiment: llmScore.sentiment,
     status: 'completed' as const,
-    structuredSummary: {
-      compensationAligned: true,
-      experienceConfirmed: true,
-      noticePeriodConfirmed: true,
-    },
-    summary: 'Mock screening completed. Candidate responses align with role requirements.',
-    transcript: 'Mock transcript placeholder for future AI screening integration.',
+    structuredSummary: llmScore.structuredSummary,
+    summary: llmScore.summary,
+    transcript: transcriptResult.transcript,
   };
+
   const [session] = existingSession
     ? await db
         .update(screeningSessionsSchema)
@@ -126,7 +197,6 @@ export const completeMockScreening = async (applicationId: unknown) => {
           ...values,
           applicationId: parsedApplicationId,
           organizationId,
-          provider: 'mock',
         })
         .returning();
 
@@ -139,7 +209,12 @@ export const completeMockScreening = async (applicationId: unknown) => {
     actorId: userId,
     entityId: session.id,
     entityType: 'screening_session',
-    metadata: { applicationId: parsedApplicationId, score: session.score },
+    metadata: {
+      applicationId: parsedApplicationId,
+      provider: transcriptResult.provider,
+      score: session.score,
+      scoringMode: 'mock_transcript_llm',
+    },
     organizationId,
   });
 
@@ -147,32 +222,34 @@ export const completeMockScreening = async (applicationId: unknown) => {
     .update(applicationsSchema)
     .set({ currentStage: 'screened_awaiting_review' })
     .where(eq(applicationsSchema.id, parsedApplicationId));
-  const [candidate] = await db
-    .select({ id: candidatesSchema.id })
-    .from(candidatesSchema)
-    .where(eq(candidatesSchema.id, application.candidateId));
 
-  if (candidate) {
-    await db.insert(consentRecordsSchema).values({
-      applicationId: parsedApplicationId,
-      candidateId: candidate.id,
-      channel: 'mock_screening',
-      consentType: 'ai_screening_recording',
-      evidence: 'Mock consent captured before demo screening completion.',
-      metadata: { provider: 'mock' },
-      organizationId,
-    });
-  }
+  await db.insert(consentRecordsSchema).values({
+    applicationId: parsedApplicationId,
+    candidateId: candidate.id,
+    channel: 'mock_screening',
+    consentType: 'ai_screening_recording',
+    evidence: 'Mock consent captured before demo screening completion.',
+    metadata: {
+      provider: transcriptResult.provider,
+      scoringMode: 'mock_transcript_llm',
+    },
+    organizationId,
+  });
 
   await createNotificationRecordForOrg({
     channel: 'internal',
     eventType: 'screening_completed',
     organizationId,
-    payload: { applicationId: parsedApplicationId, score: session.score },
+    payload: {
+      applicationId: parsedApplicationId,
+      provider: transcriptResult.provider,
+      score: session.score,
+    },
     recipientId: session.id,
     recipientType: 'screening_session',
     status: 'mock_created',
   });
+
   revalidatePath('/recruiter/screenings');
   revalidatePath('/recruiter/pipeline');
 

@@ -14,7 +14,7 @@ import {
 import { createAuditLog } from '../audit/audit-log';
 import { createNotificationRecordForOrg } from '../notifications/record-notification';
 import { getRecruitmentContext } from '../server-context';
-import { scoreMockTranscriptWithLlm } from './mock-llm-scorer';
+import { scoreTranscriptWithGemini } from './gemini-scorer';
 import { getMockTranscriptFromExternalApi } from './mock-transcript';
 
 const applicationIdSchema = z.string().uuid();
@@ -42,6 +42,55 @@ const normalizeSkillList = (value: unknown) => {
     .map(skill => skill.trim())
     .filter(Boolean);
 };
+
+const buildResumeTextForScreening = (candidate: {
+  currentCompany: string | null;
+  currentRole: string | null;
+  email: string;
+  expectedSalary: string | null;
+  experienceYears: number | null;
+  location: string | null;
+  name: string;
+  noticePeriod: string | null;
+  phone: string | null;
+  skills: unknown;
+  source: string;
+}) => {
+  const skills = normalizeSkillList(candidate.skills);
+
+  return `
+Candidate name: ${candidate.name}
+Email: ${candidate.email}
+Phone: ${candidate.phone ?? 'Not provided'}
+Current role: ${candidate.currentRole ?? 'Not provided'}
+Current company: ${candidate.currentCompany ?? 'Not provided'}
+Location: ${candidate.location ?? 'Not provided'}
+Experience years: ${candidate.experienceYears ?? 'Not provided'}
+Skills: ${skills.join(', ') || 'Not provided'}
+Expected salary: ${candidate.expectedSalary ?? 'Not provided'}
+Notice period: ${candidate.noticePeriod ?? 'Not provided'}
+Source: ${candidate.source}
+`;
+};
+
+const buildJobDescriptionForScreening = (job: {
+  department: string;
+  employmentType: string;
+  experienceMax: number;
+  experienceMin: number;
+  location: string;
+  preferredSkills: unknown;
+  requiredSkills: unknown;
+  title: string;
+}) => `
+Job title: ${job.title}
+Department: ${job.department}
+Employment type: ${job.employmentType}
+Location: ${job.location}
+Experience range: ${job.experienceMin}-${job.experienceMax} years
+Required skills: ${normalizeSkillList(job.requiredSkills).join(', ') || 'Not provided'}
+Preferred skills: ${normalizeSkillList(job.preferredSkills).join(', ') || 'Not provided'}
+`;
 
 const getScopedApplication = async (applicationId: string, organizationId: string) => {
   const [application] = await db
@@ -153,13 +202,18 @@ export const completeMockScreening = async (applicationId: unknown) => {
     requiredSkills,
   });
 
-  const llmScore = await scoreMockTranscriptWithLlm({
+  const resumeText = buildResumeTextForScreening(candidate);
+  const jobDescription = buildJobDescriptionForScreening(job);
+
+  const llmScore = await scoreTranscriptWithGemini({
     candidateName: candidate.name,
     candidateSkills,
     experienceYears: candidate.experienceYears,
+    jobDescription,
     jobTitle: job.title,
     noticePeriod: candidate.noticePeriod,
     requiredSkills,
+    resumeText,
     transcript: transcriptResult.transcript,
   });
 
@@ -172,7 +226,7 @@ export const completeMockScreening = async (applicationId: unknown) => {
     consentCapturedAt: now,
     durationSeconds: 120,
     externalRoomId: transcriptResult.externalSessionId,
-    provider: transcriptResult.provider,
+    provider: 'gemini_transcript_scoring',
     qualificationTag: llmScore.qualificationTag,
     recommendation: llmScore.recommendation,
     recordingUrl: transcriptResult.recordingUrl,
@@ -213,7 +267,7 @@ export const completeMockScreening = async (applicationId: unknown) => {
       applicationId: parsedApplicationId,
       provider: transcriptResult.provider,
       score: session.score,
-      scoringMode: 'mock_transcript_llm',
+      scoringMode: 'gemini_transcript_scoring',
     },
     organizationId,
   });
@@ -231,7 +285,7 @@ export const completeMockScreening = async (applicationId: unknown) => {
     evidence: 'Mock consent captured before demo screening completion.',
     metadata: {
       provider: transcriptResult.provider,
-      scoringMode: 'mock_transcript_llm',
+      scoringMode: 'gemini_transcript_scoring',
     },
     organizationId,
   });

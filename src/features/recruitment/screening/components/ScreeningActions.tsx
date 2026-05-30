@@ -1,3 +1,5 @@
+// src/features/recruitment/screening/components/ScreeningActions.tsx
+
 'use client';
 
 import type { Candidate, Job } from '../../types';

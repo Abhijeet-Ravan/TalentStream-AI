@@ -1,19 +1,29 @@
+// src/features/recruitment/jobs/components/JobForm.tsx
+
 'use client';
 
+import type { Department } from '../../types';
 import type { JobFormPayload } from '../validations';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { recruitmentDepartments } from '../../domain-options';
+import {
+  cosmoLocations,
+  departmentSubFunctions,
+  educationOptions,
+  noticePeriodOptions,
+  recruitmentDepartments,
+  reportingManagers,
+} from '../../domain-options';
 import { createJob } from '../actions';
 import { employmentTypes, jobFormSchema } from '../validations';
 
 type FieldErrors = Partial<Record<keyof JobFormPayload, string>>;
 
 const employmentTypeLabels: Record<(typeof employmentTypes)[number], string> = {
-  consultant: 'Consultant',
   contract: 'Contract',
   full_time: 'Full time',
+  intern: 'Intern',
 };
 
 const parseList = (value: FormDataEntryValue | null) =>
@@ -28,23 +38,28 @@ const parseOptionalList = (value: FormDataEntryValue | null) => {
   return items.length > 0 ? items : undefined;
 };
 
-const parseNumber = (value: FormDataEntryValue | null) => Number(value ?? Number.NaN);
+const parseNumber = (value: FormDataEntryValue | null) => {
+  const textValue = String(value ?? '').trim();
+
+  return textValue ? Number(textValue) : Number.NaN;
+};
 
 const getTextValue = (formData: FormData, key: string) => String(formData.get(key) ?? '');
+const getTextValues = (formData: FormData, key: string) => formData.getAll(key).map(value => String(value));
 
 const buildPayload = (formData: FormData): JobFormPayload => ({
   avoidIndustries: parseOptionalList(formData.get('avoidIndustries')),
   department: getTextValue(formData, 'department') as JobFormPayload['department'],
   description: getTextValue(formData, 'description'),
-  education: getTextValue(formData, 'education'),
+  education: getTextValues(formData, 'education') as JobFormPayload['education'],
   employmentType: getTextValue(formData, 'employmentType') as JobFormPayload['employmentType'],
   experienceMax: parseNumber(formData.get('experienceMax')),
   experienceMin: parseNumber(formData.get('experienceMin')),
-  location: getTextValue(formData, 'location'),
-  noticePeriod: getTextValue(formData, 'noticePeriod'),
+  locations: getTextValues(formData, 'locations') as JobFormPayload['locations'],
+  noticePeriod: getTextValue(formData, 'noticePeriod') as JobFormPayload['noticePeriod'],
   preferredIndustries: parseList(formData.get('preferredIndustries')),
   preferredSkills: parseList(formData.get('preferredSkills')),
-  reportingManager: getTextValue(formData, 'reportingManager'),
+  reportingManager: getTextValue(formData, 'reportingManager') as JobFormPayload['reportingManager'],
   requiredSkills: parseList(formData.get('requiredSkills')),
   responsibilities: getTextValue(formData, 'responsibilities'),
   salaryMax: parseNumber(formData.get('salaryMax')),
@@ -82,9 +97,11 @@ const textareaClassName = 'min-h-28 w-full px-3 py-2 text-sm';
 
 export const JobForm = () => {
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | ''>('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const subFunctions = selectedDepartment ? departmentSubFunctions[selectedDepartment] : [];
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -145,7 +162,12 @@ export const JobForm = () => {
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium">Department</span>
-            <select className={inputClassName} name="department" defaultValue="">
+            <select
+              className={inputClassName}
+              name="department"
+              defaultValue=""
+              onChange={event => setSelectedDepartment(event.target.value as Department)}
+            >
               <option disabled value="">Select department</option>
               {recruitmentDepartments.map(department => (
                 <option key={department} value={department}>
@@ -158,18 +180,25 @@ export const JobForm = () => {
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium">Sub-function</span>
-            <input className={inputClassName} name="subFunction" placeholder="Plant operations" />
+            <select
+              key={selectedDepartment}
+              className={inputClassName}
+              disabled={!selectedDepartment}
+              name="subFunction"
+              defaultValue=""
+            >
+              <option disabled value="">Select sub-function</option>
+              {subFunctions.map(subFunction => (
+                <option key={subFunction} value={subFunction}>
+                  {subFunction}
+                </option>
+              ))}
+            </select>
             <FieldError message={errors.subFunction} />
           </label>
 
           <label className="space-y-1.5">
-            <span className="text-sm font-medium">Location</span>
-            <input className={inputClassName} name="location" placeholder="Pune, Maharashtra" />
-            <FieldError message={errors.location} />
-          </label>
-
-          <label className="space-y-1.5">
-            <span className="text-sm font-medium">Employment type</span>
+            <span className="text-sm font-medium">Job type</span>
             <select className={inputClassName} name="employmentType" defaultValue="">
               <option disabled value="">Select job type</option>
               {employmentTypes.map(employmentType => (
@@ -183,9 +212,40 @@ export const JobForm = () => {
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium">Reporting manager</span>
-            <input className={inputClassName} name="reportingManager" placeholder="Nitin Patil" />
+            <select className={inputClassName} name="reportingManager" defaultValue="">
+              <option disabled value="">Select manager</option>
+              {reportingManagers.map(manager => (
+                <option key={manager.id} value={manager.id}>
+                  {manager.name}
+                </option>
+              ))}
+            </select>
             <FieldError message={errors.reportingManager} />
           </label>
+
+          <div className="
+            space-y-2
+            md:col-span-2
+          "
+          >
+            <span className="text-sm font-medium">Locations</span>
+            <div className="
+              grid gap-2 rounded-md border p-3
+              md:grid-cols-2
+            "
+            >
+              {cosmoLocations.map(location => (
+                <label
+                  key={location}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <input name="locations" type="checkbox" value={location} />
+                  <span>{location}</span>
+                </label>
+              ))}
+            </div>
+            <FieldError message={errors.locations} />
+          </div>
         </div>
       </section>
 
@@ -262,15 +322,36 @@ export const JobForm = () => {
             <FieldError message={errors.avoidIndustries} />
           </label>
 
-          <label className="space-y-1.5">
+          <div className="space-y-2">
             <span className="text-sm font-medium">Education</span>
-            <input className={inputClassName} name="education" placeholder="BE Mechanical preferred" />
+            <div className="
+              grid gap-2 rounded-md border p-3
+              sm:grid-cols-2
+            "
+            >
+              {educationOptions.map(education => (
+                <label
+                  key={education}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <input name="education" type="checkbox" value={education} />
+                  <span>{education}</span>
+                </label>
+              ))}
+            </div>
             <FieldError message={errors.education} />
-          </label>
+          </div>
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium">Notice period</span>
-            <input className={inputClassName} name="noticePeriod" placeholder="30 to 60 days" />
+            <select className={inputClassName} name="noticePeriod" defaultValue="">
+              <option disabled value="">Select notice period</option>
+              {noticePeriodOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <FieldError message={errors.noticePeriod} />
           </label>
         </div>

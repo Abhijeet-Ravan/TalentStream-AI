@@ -1,12 +1,18 @@
 export type Department
-  = | 'Manufacturing'
+  = | 'Finance'
+    | 'HR'
+    | 'IT'
+    | 'Legal'
+    | 'Maintenance'
+    | 'Manufacturing'
+    | 'Marketing'
+    | 'Operations'
+    | 'Plant Maintenance'
+    | 'R&D'
     | 'Sales'
-    | 'Supply Chain'
-    | 'Finance'
     | 'Information Technology'
     | 'Research and Development'
-    | 'Maintenance'
-    | 'Marketing';
+    | 'Supply Chain';
 
 export type CandidateSource
   = | 'employee_referral'
@@ -70,6 +76,7 @@ export type PipelineStage
 export type EmploymentType
   = | 'full_time'
     | 'contract'
+    | 'intern'
     | 'consultant';
 
 export type AlertSeverity

@@ -1,3 +1,5 @@
+// src/libs/Env.ts
+
 import { createEnv } from '@t3-oss/env-nextjs';
 import * as z from 'zod';
 
@@ -7,6 +9,12 @@ export const Env = createEnv({
     DATABASE_URL: z.string().min(1),
     GEMINI_API_KEY: z.string().min(1),
     GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+
+    RAVAN_API_KEY: z.string().optional(),
+    RAVAN_BASE_URL: z.string().url().default('https://api.ravan.ai'),
+    RAVAN_AGENT_ID: z.string().optional(),
+    RAVAN_FROM_PHONE_NUMBER: z.string().optional(),
+    RAVAN_ORG_ID: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().optional(),
@@ -22,9 +30,18 @@ export const Env = createEnv({
   runtimeEnv: {
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
+
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     GEMINI_MODEL: process.env.GEMINI_MODEL,
+
+    RAVAN_API_KEY: process.env.RAVAN_API_KEY,
+    RAVAN_BASE_URL: process.env.RAVAN_BASE_URL,
+    RAVAN_AGENT_ID: process.env.RAVAN_AGENT_ID,
+    RAVAN_FROM_PHONE_NUMBER: process.env.RAVAN_FROM_PHONE_NUMBER,
+    RAVAN_ORG_ID: process.env.RAVAN_ORG_ID,
+
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_LOGGING_LEVEL: process.env.NEXT_PUBLIC_LOGGING_LEVEL,

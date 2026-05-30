@@ -1,3 +1,5 @@
+// src/models/Schema.ts
+
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -9,6 +11,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 
@@ -47,6 +50,7 @@ export const jobStatusEnum = pgEnum('job_status', [
 export const employmentTypeEnum = pgEnum('employment_type', [
   'full_time',
   'contract',
+  'intern',
   'consultant',
 ]);
 
@@ -228,7 +232,22 @@ export const screeningSessionsSchema = pgTable('screening_sessions', {
   organizationId: text('organization_id').notNull(),
   applicationId: uuid('application_id').notNull().references(() => applicationsSchema.id),
   status: screeningStatusEnum('status').default('queued').notNull(),
-  provider: text('provider').notNull(),
+
+  // --- AGNI / PROVIDER INTEGRATION FIELDS ---
+  provider: text('provider').default('mock').notNull(), // 'mock' or 'agni'
+  providerSessionId: text('provider_session_id'), // Stores Agni's call_session_id
+  providerStatus: text('provider_status'), // Detailed Agni statuses (busy, voicemail, etc.)
+  agentId: text('agent_id'), // The Agni AI recruiter Agent ID
+  fromPhoneNumber: text('from_phone_number'), // Outbound phone line used
+  toPhoneNumber: text('to_phone_number'), // Candidate's dialed phone line
+  costTotal: text('cost_total'), // Financial tracking for the call
+  callLatencyMs: integer('call_latency_ms'), // Call quality latency tracking
+  rawProviderPayload: jsonb('raw_provider_payload') // Full raw webhook fallback for debugging
+    .$type<Record<string, unknown>>()
+    .default(sql`'{}'::jsonb`)
+    .notNull(),
+  // ------------------------------------------
+
   externalRoomId: text('external_room_id'),
   attemptCount: integer('attempt_count').default(0).notNull(),
   lastAttemptAt: timestamp('last_attempt_at', { mode: 'date' }),
@@ -238,12 +257,16 @@ export const screeningSessionsSchema = pgTable('screening_sessions', {
   callStartedAt: timestamp('call_started_at', { mode: 'date' }),
   callEndedAt: timestamp('call_ended_at', { mode: 'date' }),
   durationSeconds: integer('duration_seconds'),
+
   sentiment: text('sentiment'),
+  disposition: text('disposition'),
   qualificationTag: text('qualification_tag'),
+  disconnectReason: text('disconnect_reason'),
   structuredSummary: jsonb('structured_summary')
     .$type<Record<string, unknown>>()
     .default(sql`'{}'::jsonb`)
     .notNull(),
+
   resumeCrossCheck: jsonb('resume_cross_check')
     .$type<Record<string, unknown>>()
     .default(sql`'{}'::jsonb`)
@@ -262,6 +285,8 @@ export const screeningSessionsSchema = pgTable('screening_sessions', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 }, table => [
   index('screening_sessions_application_id_idx').on(table.applicationId),
+  // Essential for fast lookups when Agni's webhook pings your app backend
+  uniqueIndex('screening_sessions_provider_session_id_unique').on(table.providerSessionId),
 ]);
 
 export const interviewsSchema = pgTable('interviews', {

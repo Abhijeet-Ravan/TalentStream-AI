@@ -22,12 +22,15 @@ const updateJobStatusSchema = z.object({
 export const createJob = async (input: unknown) => {
   const { organizationId, userId } = await getRecruitmentContext();
   const payload = createJobSchema.parse(input);
+  const { education, locations, ...jobPayload } = payload;
 
   const [job] = await db
     .insert(jobsSchema)
     .values({
-      ...payload,
+      ...jobPayload,
       avoidIndustries: payload.avoidIndustries ?? [],
+      education: education.join(', '),
+      location: locations.join(', '),
       createdById: userId,
       organizationId,
     })

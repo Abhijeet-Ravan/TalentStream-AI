@@ -10,6 +10,7 @@ const formatEmploymentType = (employmentType: Job['employmentType']) => {
     consultant: 'Consultant',
     contract: 'Contract',
     full_time: 'Full time',
+    intern: 'Intern',
   };
 
   return labelMap[employmentType];
